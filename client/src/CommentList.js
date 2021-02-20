@@ -1,31 +1,34 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const CommentList = ({ postId }) => {
-  const [commentsList, setCommentsList] = useState([]);
+const CommentList = ({ postId, comments }) => {
+  console.log('CommentList props comments:', comments);
 
-  useEffect(() => {
-    fetchComments();
-  }, []);
+  // OLD STUFF - when we used to use id to fetch all comments for each post
 
-  const fetchComments = async () => {
-    const { data } = await axios.get(
-      `http://localhost:4001/posts/${postId}/comments`
-    );
+  // const [commentsList, setCommentsList] = useState([]);
+  // useEffect(() => {
+  //   fetchComments();
+  // }, []);
 
-    setCommentsList(data);
-  };
+  // const fetchComments = async () => {
+  //   const { data } = await axios.get(
+  //     `http://localhost:4001/posts/${postId}/comments`
+  //   );
+
+  //   setCommentsList(data);
+  // };
 
   const renderComments = () => {
-    return commentsList.map((comment) => (
-      <div
+    return comments.map((comment) => (
+      <li
         key={comment.id}
         className="comment my-3"
         style={{ fontSize: '14px', color: '#a9a9a9' }}
       >
-        {comment.comment}
+        {comment.content}
         <div>{comment.date}</div>
-      </div>
+      </li>
     ));
   };
 
@@ -33,7 +36,7 @@ const CommentList = ({ postId }) => {
     <div>
       <div className="mt-3">Comments</div>
       <hr />
-      {renderComments()}
+      <ul>{renderComments()}</ul>
     </div>
   );
 };

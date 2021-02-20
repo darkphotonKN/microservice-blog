@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const { randomBytes } = require('crypto');
 const bodyParser = require('body-parser');
+const axios = require('axios');
 
 const app = express();
 
@@ -17,10 +18,26 @@ app.post('/posts/:id/comments', (req, res) => {
 
   // look up id key see if comments list exists already, if not initialize
   const comments = commentsByPostId[req.params.id] || [];
+  const date = new Date();
 
-  comments.push({ id: commentId, date: new Date(), comment: content });
+  comments.push({ id: commentId, date, content });
 
-  commentsByPostId[req.params.id] = comments; // replacing with new array
+  // replacing with new array
+  commentsByPostId[req.params.id] = comments; // "storing" to DB (in memory just for demo)
+
+  // post request of the same post to the EVENT BUS!
+  // type - type of event
+  // data - the payload carried over to be saved
+  axios.post('http://localhost:4005/events', {
+    type: 'CommentCreated',
+    data: {
+      id: commentId,
+      content,
+      date,
+      postId: req.params.id,
+    },
+  });
+
   res.status(201).json(commentsByPostId);
 });
 
@@ -32,6 +49,11 @@ app.get('/posts/:id/comments', (req, res) => {
   } else {
     res.status(400).json('No such post exists.');
   }
+});
+
+app.post('/events', (req, res) => {
+  console.log('Recieved Event', req.body.type);
+  res.send({});
 });
 
 app.listen(4001, () => {
