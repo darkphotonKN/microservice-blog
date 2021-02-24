@@ -20,16 +20,39 @@ const CommentList = ({ postId, comments }) => {
   // };
 
   const renderComments = () => {
-    return comments.map((comment) => (
-      <li
-        key={comment.id}
-        className="comment my-3"
-        style={{ fontSize: '14px', color: '#a9a9a9' }}
-      >
-        {comment.content}
-        <div>{comment.date}</div>
-      </li>
-    ));
+    return comments.map((comment) => {
+      let content;
+
+      switch (comment.status) {
+        case 'approved': {
+          content = comment.content;
+          break;
+        }
+        case 'pending': {
+          content = 'This content is awaiting moderation.';
+          break;
+        }
+        case 'rejected': {
+          content =
+            'This commented has been moderated and found to be unsuitable for view and has been removed.';
+          break;
+        }
+        default: {
+          content = 'An error has occured with this comment.';
+        }
+      }
+
+      return (
+        <li
+          key={comment.id}
+          className="comment my-3"
+          style={{ fontSize: '14px', color: '#a9a9a9' }}
+        >
+          {content}
+          <div>{comment.date}</div>
+        </li>
+      );
+    });
   };
 
   return (

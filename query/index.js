@@ -5,6 +5,7 @@
 
 const express = require('express');
 const cors = require('cors');
+const axios = require('axios');
 const bodyParser = require('body-parser');
 
 const app = express();
@@ -15,24 +16,7 @@ app.use(cors());
 // storing post data, replacing a DB for demo purposes
 const posts = {};
 
-app.get('/posts', (req, res) => {
-  res.json(posts);
-});
-
-// every event that is posted will also all post to this end point
-app.post('/events', (req, res) => {
-  /* posts to this endpoint will all contain this info in the body under this format:
-  {
-    type: 'PostCreated',
-    data: {
-      id: 121312,
-      title: 'mytitle'
-    }
-  }
-  */
-
-  const { type, data } = req.body;
-
+const handleEvent = (type, data) => {
   // initial post creation
   if (type === 'PostCreated') {
     const { id, title } = data;
@@ -55,6 +39,27 @@ app.post('/events', (req, res) => {
     comment.status = status; // update to "Approved" or "Rejected"
     comment.content = content;
   }
+};
+
+app.get('/posts', (req, res) => {
+  res.json(posts);
+});
+
+// every event that is posted will also all post to this end point
+app.post('/events', (req, res) => {
+  /* posts to this endpoint will all contain this info in the body under this format:
+  {
+    type: 'PostCreated',
+    data: {
+      id: 121312,
+      title: 'mytitle'
+    }
+  }
+  */
+
+  const { type, data } = req.body;
+
+  handleEvent(type, data);
 
   console.log(posts);
 
@@ -66,4 +71,14 @@ app.post('/events', (req, res) => {
   res.send({});
 });
 
-app.listen(4002, () => console.log('Server running on port 4002'));
+app.listen(4002, async () => {
+  console.log('Server running on port 4002');
+  // once server is online, get a list of all events since offline
+
+  const events = await axios.get('http://localhost:4005/events');
+
+  for (let event of events.data) {
+    console.log('Processing event:', event.type);
+    handleEvent(event.type, event.data);
+  }
+});
