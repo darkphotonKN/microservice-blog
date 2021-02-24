@@ -1,3 +1,7 @@
+/**
+ * POSTS service
+ */
+
 const express = require('express');
 const cors = require('cors');
 const { randomBytes } = require('crypto');

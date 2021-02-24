@@ -33,8 +33,8 @@ const PostList = () => {
                 post.id in order for the comments component to FIND it's 
                 respective post's comments via a GET request. 
 
-                This is NO longer necessary, as we have the query service,
-                which contains all the data. We simply pass in ALL comments
+                This is NO longer necessary, as we have the QUERY service (4002),
+                which contains ALL the data. We simply pass in ALL comments
             */}
             <CommentCreate postId={post.id} />
             {/* OLD
